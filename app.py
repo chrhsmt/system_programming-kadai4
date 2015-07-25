@@ -5,11 +5,12 @@ import urllib
 import urllib2
 import json
 import os
-import logging
+
+app = Flask(__name__)
 
 BOT_NAME = "harahe"
 
-class Message(object):
+class SMessage(object):
     """Slackのメッセージクラス"""
     token = ""
     team_id = ""
@@ -22,6 +23,7 @@ class Message(object):
     trigger_word = ""  # OutgoingWebhooksに設定したトリガー
 
     def __init__(self, params):
+        self.token = params["token"]
         self.team_id = params["team_id"]
         self.channel_id = params["channel_id"]
         self.channel_name = params["channel_name"]
@@ -36,15 +38,14 @@ class Message(object):
         res += "@{0.token}[channel={0.channel_name}, user={0.user_name}, text={0.text}]".format(self)
         return res
 
-app = Flask(__name__)
-
-@app.route('/', methods=["POST"])
+@app.route('/', methods=["POST", "GET"])
 def index():
+    print (request.form)
     app.logger.info("----------")
-    logging.debug(request.form)
     app.logger.debug(request.form)
-    msg = Message(request.form)
-    app.logger.debug(msg)
+    if (request.method == "POST"):
+        msg = SMessage(request.form)
+        app.logger.debug(msg)
     if msg.user_name == BOT_NAME:
         return ""
     if BOT_NAME in msg.text:
