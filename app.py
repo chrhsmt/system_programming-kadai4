@@ -69,6 +69,7 @@ def recommend(keyword):
     print ("recommend start")
     keyword = urllib.quote(keyword)
     request = urllib2.Request("http://webservice.recruit.co.jp/hotpepper/gourmet/v1/", data="keyword=%s&format=json&is_open_time=now&key=%s" % (keyword, os.environ['API_KEY']))
+    print (request)
     response = urllib2.urlopen(request)
     json_obj = json.loads(response.read())
     if (len(json_obj["results"]["shop"]) > 0):
