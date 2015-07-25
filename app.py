@@ -38,6 +38,7 @@ app = Flask(__name__)
 
 @app.route('/', methods=["POST"])
 def index():
+    app.logger(request.form)
     msg = Message(request.form)
     app.logger.debug(msg)
     if msg.user_name == BOT_NAME:
