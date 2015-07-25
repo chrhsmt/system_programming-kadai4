@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 BOT_NAME = "harahe"
 
-class SMessage(object):
+class Message(object):
     """Slackのメッセージクラス"""
     token = ""
     team_id = ""
@@ -47,25 +47,41 @@ def index():
     print (request.form["team_domain"])
     app.logger.info("----------")
     app.logger.debug(request.form)
-    if (request.method == "POST"):
-        msg = SMessage(request.form)
-        app.logger.debug(msg)
-    if msg.user_name == BOT_NAME:
-        return ""
-    if BOT_NAME in msg.text:
-        return say(recommend(msg.text.split()[-1]))
+    try:
+        if (request.method == "POST"):
+            msg = Message(request.form)
+            app.logger.debug(msg)
+        if msg.user_name == BOT_NAME:
+            return ""
+        if BOT_NAME in msg.text:
+            return say(recommend(msg.text.split()[-1]))
+        else:
+            return ""
+    except Exception, e:
+        print (e)
+        return e
+    else:
+        pass
+    finally:
+        pass
 
 def recommend(keyword):
+    print ("recommend start")
     keyword = urllib.quote(keyword)
     request = urllib2.Request("http://webservice.recruit.co.jp/hotpepper/gourmet/v1/", data="keyword=%s&format=json&is_open_time=now&key=%s" % (keyword, os.environ['API_KEY']))
     response = urllib2.urlopen(request)
-    return json.loads(response.read())["results"]["shop"][0]["name"]
+    json_obj = json.loads(response.read())
+    if (len(json_obj["results"]["shop"]) > 0):
+        return json_obj["results"]["shop"][0]["name"]
+    else:
+        return "Oops... none"
 
-def say(str):
+def say(text):
     """Slackの形式でJSONを返す"""
+    print ("say start")
     return jsonify({
         "text": text, # 投稿する内容
-        "username": "mybot", # bot名
+        "username": BOT_NAME, # bot名
         "icon_emoji": "", # botのiconを絵文字の中から指定
     })
 
