@@ -4,6 +4,7 @@ import urllib
 import urllib2
 import json
 import os
+import logging
 
 BOT_NAME = "harahe"
 
@@ -38,7 +39,9 @@ app = Flask(__name__)
 
 @app.route('/', methods=["POST"])
 def index():
-    app.logger(request.form)
+    app.logger.info("----------")
+    logging.debug(request.form)
+    app.logger.debug(request.form)
     msg = Message(request.form)
     app.logger.debug(msg)
     if msg.user_name == BOT_NAME:
