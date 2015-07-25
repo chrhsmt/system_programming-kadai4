@@ -20,18 +20,22 @@ class SMessage(object):
     user_id = ""  
     user_name = ""  # 投稿ユーザー名
     text = ""  # 投稿内容
+    service_id = ""
+    team_domain = ""
     trigger_word = ""  # OutgoingWebhooksに設定したトリガー
 
     def __init__(self, params):
-        self.token = params["token"]
-        self.team_id = params["team_id"]
-        self.channel_id = params["channel_id"]
-        self.channel_name = params["channel_name"]
-        self.timestamp = params["timestamp"]
-        self.user_id = params["user_id"]
-        self.user_name = params["user_name"]
+        # self.token = params["token"]
+        # self.team_id = params["team_id"]
+        # self.channel_id = params["channel_id"]
+        # self.channel_name = params["channel_name"]
+        # self.timestamp = params["timestamp"]
+        # self.user_id = params["user_id"]
+        # self.user_name = params["user_name"]
         self.text = params["text"]
-        self.trigger_word = params["trigger_word"]
+        # self.team_domain = params["team_domain"]
+        # self.service_id = params["service_id"]
+        # self.trigger_word = params["trigger_word"]
 
     def __str__(self):
         res = self.__class__.__name__
@@ -40,7 +44,7 @@ class SMessage(object):
 
 @app.route('/', methods=["POST", "GET"])
 def index():
-    print (request.form)
+    print (request.form["team_domain"])
     app.logger.info("----------")
     app.logger.debug(request.form)
     if (request.method == "POST"):
