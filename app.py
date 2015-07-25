@@ -35,7 +35,8 @@ class Message(object):
         self.text = params["text"]
         self.team_domain = params["team_domain"]
         self.service_id = params["service_id"]
-        self.trigger_word = params["trigger_word"]
+        if (params.has_key("trigger_word")):
+            self.trigger_word = params["trigger_word"]
 
     def __str__(self):
         res = self.__class__.__name__
