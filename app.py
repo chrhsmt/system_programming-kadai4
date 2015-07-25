@@ -44,7 +44,7 @@ class Message(object):
 
 @app.route('/', methods=["POST", "GET"])
 def index():
-    print (request.form["token"])
+    print (request.form)
     app.logger.info("----------")
     app.logger.debug(request.form)
     try:
