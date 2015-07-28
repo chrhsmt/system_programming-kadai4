@@ -67,7 +67,7 @@ def index():
         # BOT自身の投稿に反応させてしまうと無限ループになることもあるので反応させない
         return ""
     if BOT_NAME in msg.text:
-        return say(recommend(msg.text.split()[-1]))
+        return say(recommend(msg.text.split()[-1]), msg.user_name)
     else:
         return ""
 
@@ -85,11 +85,11 @@ def recommend(keyword):
     else:
         return "Oops... not found."
 
-def say(text):
+def say(text, to_user):
     """Slackの形式でJSONを返す"""
     app.logger.debug("say start")
     return jsonify({
-        "text": text, # 投稿する内容
+        "text": "@%s %s" % (to_user, text), # 投稿する内容
         "username": BOT_NAME, # bot名
         "icon_emoji": "", # botのiconを絵文字の中から指定
     })
