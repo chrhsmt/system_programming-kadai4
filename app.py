@@ -15,6 +15,8 @@ app.logger.setLevel(logging.DEBUG)
 BOT_NAME = "harahe"
 HOTPAPPER_API_PATH = "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/"
 
+cache = {}
+
 class Message(object):
     """Slackのメッセージクラス"""
     token = ""
@@ -73,6 +75,9 @@ def index():
 
 def recommend(keyword):
     app.logger.debug("recommend start: [keyword=%s]" % keyword)
+    if cache.has_key(keyword):
+        return cache[keyword]
+
     keyword = urllib.quote(keyword.strip().encode("UTF-8"))
     request = urllib2.Request("%s?keyword=%s&format=json&is_open_time=now&key=%s" % (HOTPAPPER_API_PATH, keyword, os.environ['API_KEY']))
     response = urllib2.urlopen(request)
@@ -82,7 +87,9 @@ def recommend(keyword):
     app.logger.debug("-- /response --")
     if (len(json_obj["results"]["shop"]) > 0):
         shop = json_obj["results"]["shop"][0]
-        return "%s [at] %s\n%s" % (shop["name"], shop["address"], shop["urls"]["pc"])
+        text = "%s [at] %s\n%s" % (shop["name"], shop["address"], shop["urls"]["pc"])
+        cache[keyword] = text
+        return text
     else:
         return "Oops... not found."
 
