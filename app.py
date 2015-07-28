@@ -1,20 +1,22 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, request, jsonify
+from werkzeug.contrib.cache import SimpleCache
 import urllib
 import urllib2
 import json
 import os
 import sys
 import logging
+import hashlib
 
 app = Flask(__name__)
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.DEBUG)
 
+cache = SimpleCache()
+
 BOT_NAME = "harahe"
 HOTPAPPER_API_PATH = "http://webservice.recruit.co.jp/hotpepper/gourmet/v1/"
-
-cache = {}
 
 class Message(object):
     """Slackのメッセージクラス"""
@@ -74,10 +76,13 @@ def index():
 
 def recommend(keyword):
     app.logger.debug("recommend start: [keyword=%s]" % keyword)
-    if cache.has_key(keyword):
-        return cache[keyword]
+    keyword = urllib.quote(keyword.strip().encode("utf-8"))
 
-    keyword = urllib.quote(keyword.strip().encode("UTF-8"))
+    text = get_cache(keyword)
+    if text is not None:
+        app.logger.debug("hit cache!!!!")
+        return text
+
     request = urllib2.Request("%s?keyword=%s&format=json&is_open_time=now&key=%s" % (HOTPAPPER_API_PATH, keyword, os.environ['API_KEY']))
     response = urllib2.urlopen(request)
     json_obj = json.loads(response.read())
@@ -87,14 +92,21 @@ def recommend(keyword):
     if (len(json_obj["results"]["shop"]) > 0):
         shop = json_obj["results"]["shop"][0]
         text = "%s [at] %s\n%s" % (shop["name"], shop["address"], shop["urls"]["pc"])
-        cache[keyword] = text
+        set_cache(keyword, text)
         return text
     else:
         return "Oops... not found."
 
+def get_cache(keyword):
+    md5 = hashlib.md5(keyword).hexdigest()
+    return cache.get(md5)
+
+def set_cache(keyword, value):
+    md5 = hashlib.md5(keyword).hexdigest()
+    cache.set(md5, value)
+
 def say(text, to_user):
     """Slackの形式でJSONを返す"""
-    app.logger.debug("say start")
     return jsonify({
         "text": "@%s %s" % (to_user, text), # 投稿する内容
         "username": BOT_NAME, # bot名
