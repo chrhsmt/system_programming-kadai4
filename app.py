@@ -67,7 +67,7 @@ def index():
         # BOT自身の投稿に反応させてしまうと無限ループになることもあるので反応させない
         return ""
     if BOT_NAME in msg.text:
-        return say(recommend(msg.text.split()[-1]), msg.user_name)
+        return say(recommend(" ".join(msg.text.split()[1:])), msg.user_name)
     else:
         return ""
 
