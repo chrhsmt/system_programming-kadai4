@@ -81,7 +81,8 @@ def recommend(keyword):
     app.logger.debug(json_obj)
     app.logger.debug("-- /response --")
     if (len(json_obj["results"]["shop"]) > 0):
-        return json_obj["results"]["shop"][0]["name"]
+        shop = json_obj["results"]["shop"][0]
+        return "%s [at] %s\n%s" % (shop["name"], shop["address"], shop["urls"]["pc"])
     else:
         return "Oops... not found."
 
